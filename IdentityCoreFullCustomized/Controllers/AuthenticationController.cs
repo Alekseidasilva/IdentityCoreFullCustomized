@@ -33,13 +33,27 @@ public class AuthenticationController : ControllerBase
             SecurityStamp = Guid.NewGuid().ToString(),
             UserName = registerUser.Email
         };
-        var result = await _userManager.CreateAsync(user, registerUser.Password);
-        return result.Succeeded
-            ? StatusCode(StatusCodes.Status201Created,
-                new Response { Status = "Success", Message = "User Created Sucessfully!" })
-            : StatusCode(StatusCodes.Status500InternalServerError,
-                new Response { Status = "Error", Message = "User Failed to Create!" });
-        //Assign a Role
+        if (await _roleManager.RoleExistsAsync(role))
+        {
+            var result = await _userManager.CreateAsync(user, registerUser.Password);
+            if (!result.Succeeded)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new Response { Status = "Error", Message = "User Failed to Create!" });
+            }
+            //Add Role to the User
+            await _userManager.AddToRoleAsync(user, role);
+            return StatusCode(StatusCodes.Status200OK,
+                new Response { Status = "Success", Message = "User Created Successfully!" });
+        }
+        else
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                new Response { Status = "Error", Message = "This Role  does not exists!" });
+        }
+
+
+
 
     }
 }
