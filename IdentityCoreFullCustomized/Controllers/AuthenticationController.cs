@@ -1,21 +1,25 @@
-﻿using IdentityCoreFullCustomized.Models;
-using IdentityCoreFullCustomized.Models.Authentication.SignUp;
+﻿using IdentityCoreFullCustomized.Api.Models;
+using IdentityCoreFullCustomized.Api.Models.Authentication.SignUp;
+using IdentityCoreFullCustomized.Service.Models;
+using IdentityCoreFullCustomized.Service.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-namespace IdentityCoreFullCustomized.Controllers;
+namespace IdentityCoreFullCustomized.Api.Controllers;
 [Route("api/controller")]
 public class AuthenticationController : ControllerBase
 {
     private readonly UserManager<IdentityUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IConfiguration _configuration;
+    private readonly IEmailService _emailService;
 
-    public AuthenticationController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
+    public AuthenticationController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, IEmailService emailService)
     {
         _userManager = userManager;
         _roleManager = roleManager;
         _configuration = configuration;
+        _emailService = emailService;
     }
     [HttpPost]
     public async Task<IActionResult> Register([FromBody] RegisterUser registerUser, string role)
@@ -52,8 +56,15 @@ public class AuthenticationController : ControllerBase
                 new Response { Status = "Error", Message = "This Role  does not exists!" });
         }
 
+    }
 
+    [HttpGet]
+    public IActionResult TestEmail()
+    {
+        var message = new Message(new string[] { "alekseidasilva@hotmail.com" }, "Testing..", "<h1>Confirme Email </h1>");
 
-
+        _emailService.SendEmail(message);
+        return StatusCode(StatusCodes.Status500InternalServerError,
+            new Response { Status = "Error", Message = "Email Send Successfully" });
     }
 }

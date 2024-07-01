@@ -1,4 +1,4 @@
-namespace IdentityCoreFullCustomized
+namespace IdentityCoreFullCustomized.Api
 {
     public class WeatherForecast
     {

@@ -1,4 +1,4 @@
-﻿namespace IdentityCoreFullCustomized.Models;
+﻿namespace IdentityCoreFullCustomized.Api.Models;
 
 public class Response
 {

@@ -21,4 +21,8 @@
 	  <Folder Include="Models\Authentication\Login\" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\IdentityCoreFullCustomized.Service\IdentityCoreFullCustomized.Service.csproj" />
+	</ItemGroup>
+
 </Project>

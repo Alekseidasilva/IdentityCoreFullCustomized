@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace IdentityCoreFullCustomized.Models.Authentication.SignUp;
+namespace IdentityCoreFullCustomized.Api.Models.Authentication.SignUp;
 
 public class RegisterUser
 {

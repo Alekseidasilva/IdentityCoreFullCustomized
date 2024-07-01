@@ -1,4 +1,6 @@
-using IdentityCoreFullCustomized.Models;
+using IdentityCoreFullCustomized.Api.Models;
+using IdentityCoreFullCustomized.Service.Models;
+using MailKit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -24,7 +26,12 @@ builder.Services.AddAuthentication(opt =>
 
 
 
-// Add services to the container.
+// Add Email Config
+var emailConfig = configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>();
+builder.Services.AddSingleton(emailConfig);
+
+builder.Services.AddScoped<IMailService, MailService>();
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
