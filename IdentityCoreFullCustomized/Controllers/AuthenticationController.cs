@@ -1,19 +1,27 @@
 ﻿using IdentityCoreFullCustomized.Api.Models;
+using IdentityCoreFullCustomized.Api.Models.Authentication.Login;
 using IdentityCoreFullCustomized.Api.Models.Authentication.SignUp;
 using IdentityCoreFullCustomized.Service.Models;
 using IdentityCoreFullCustomized.Service.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
 
 namespace IdentityCoreFullCustomized.Api.Controllers;
 [Route("api/controller")]
 public class AuthenticationController : ControllerBase
 {
+    #region Variables
     private readonly UserManager<IdentityUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IConfiguration _configuration;
     private readonly IEmailService _emailService;
-
+    #endregion
+    #region Builders
     public AuthenticationController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, IEmailService emailService)
     {
         _userManager = userManager;
@@ -21,7 +29,10 @@ public class AuthenticationController : ControllerBase
         _configuration = configuration;
         _emailService = emailService;
     }
-    [HttpPost]
+    #endregion
+    #region Methods
+    #region Register
+    [HttpPost(nameof(Register))]
     public async Task<IActionResult> Register([FromBody] RegisterUser registerUser, string role)
     {
         //Check User Exists
@@ -65,6 +76,10 @@ public class AuthenticationController : ControllerBase
                 new Response { Status = "Error", Message = "This Role  does not exists!" });
         }
     }
+
+
+    #endregion
+    #region ConfirmEmail
     [HttpGet("ConfirmeEmail")]
     public async Task<IActionResult> ConfirmEmail(string token, string email)
     {
@@ -81,4 +96,58 @@ public class AuthenticationController : ControllerBase
         return StatusCode(StatusCodes.Status500InternalServerError,
             new Response { Status = "Error", Message = "This user doesnt exist" });
     }
+
+
+    #endregion
+
+    #region Login
+    [HttpPost]
+    [Route(nameof(Login))]
+    public async Task<IActionResult> Login([FromBody] LoginModel loginModel)
+    {
+        //Checking the user
+        var user = await _userManager.FindByNameAsync(loginModel.UserName);
+        //Checking Password
+        if (user != null && await _userManager.CheckPasswordAsync(user, loginModel.Password))
+        {
+            //ClaimList Creation
+            var authClaims = new List<Claim>
+           {
+               new Claim(ClaimTypes.Name, user.UserName),
+               new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+           };
+            var userRoles = await _userManager.GetRolesAsync(user);
+            //We add Roles to the List
+            foreach (var role in userRoles)
+                authClaims.Add(new Claim(ClaimTypes.Role, role));
+            //Generate the Token with the claims
+            var jwtToken = GetToken(authClaims);
+
+            //returnn the token
+            return Ok(new
+            {
+                token = new JwtSecurityTokenHandler().WriteToken(jwtToken),
+                expiration = jwtToken.ValidTo
+            });
+        }
+        return Unauthorized();
+
+    }
+
+    private JwtSecurityToken GetToken(List<Claim> authClaims)
+    {
+        var authSignKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"]));
+        var token = new JwtSecurityToken(
+            issuer: _configuration["Jwt:ValidIssuer"],
+            audience: _configuration["Jwt:ValidAudience"],
+            expires: DateTime.Now.AddHours(3),
+            claims: authClaims,
+            signingCredentials: new SigningCredentials(authSignKey, SecurityAlgorithms.HmacSha256));
+        return token;
+    }
+    #endregion
+    #endregion
+
+
+
 }
