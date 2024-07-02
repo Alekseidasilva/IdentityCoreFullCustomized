@@ -52,20 +52,18 @@ public class AuthenticationController : ControllerBase
             //Add Tojen to Verify the Email
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var confirmLink = Url.Action(nameof(ConfirmEmail), "Authentication", new { token, email = user.Email });
-            var message = new Message(new string[] { user.Email }, "Confirmation Email Link", confirmLink);
+            var message = new Message(new string[] { user.Email! }, "Confirmation Email Link", confirmLink);
             _emailService.SendEmail(message);
 
 
             return StatusCode(StatusCodes.Status200OK,
-                new Response { Status = "Success", Message = "User Created Successfully!" });
+                new Response { Status = "Success", Message = $"User Created & Email Confirmation was sent to {user.Email} Successfully!" });
         }
         else
         {
             return StatusCode(StatusCodes.Status500InternalServerError,
                 new Response { Status = "Error", Message = "This Role  does not exists!" });
-        }
-
-    }
+        } }
     [HttpGet("ConfirmeEmail")]
     public async Task<IActionResult> ConfirmEmail(string token, string email)
     {

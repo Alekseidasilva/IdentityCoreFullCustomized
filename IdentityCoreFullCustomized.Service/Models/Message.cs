@@ -16,5 +16,8 @@ public class Message
         Content = content;
     }
 
-
+    public Message(string[] to, string confirmationEmailLink, string? confirmLink)
+    {
+        throw new NotImplementedException();
+    }
 }

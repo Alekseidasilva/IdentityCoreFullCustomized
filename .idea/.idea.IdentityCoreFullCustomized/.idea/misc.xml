@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="com.github.texhnolyzze.jiraworklogplugin.JiraWorklogPluginState">
-    <option name="closed" value="true" />
     <option name="lastBranch" value="master" />
-    <option name="timers" value="{&quot;master&quot;:{&quot;total&quot;:1306075196800,&quot;updatedAtSinceEpoch&quot;:1719868429.551118100,&quot;paused&quot;:true}}" />
+    <option name="timers" value="{&quot;master&quot;:{&quot;total&quot;:8236120357900,&quot;updatedAtSinceEpoch&quot;:1719941205.667688700,&quot;paused&quot;:false}}" />
     <option name="timeSeries" value="[{&quot;branch&quot;:&quot;master&quot;,&quot;started&quot;:1719867129.076005600,&quot;duration&quot;:1306.075196800}]" />
   </component>
 </project>
