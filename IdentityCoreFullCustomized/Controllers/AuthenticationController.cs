@@ -63,7 +63,8 @@ public class AuthenticationController : ControllerBase
         {
             return StatusCode(StatusCodes.Status500InternalServerError,
                 new Response { Status = "Error", Message = "This Role  does not exists!" });
-        } }
+        }
+    }
     [HttpGet("ConfirmeEmail")]
     public async Task<IActionResult> ConfirmEmail(string token, string email)
     {
@@ -71,7 +72,7 @@ public class AuthenticationController : ControllerBase
         if (user != null)
         {
             var result = await _userManager.ConfirmEmailAsync(user, token);
-            if (!result.Succeeded)
+            if (result.Succeeded)
             {
                 return StatusCode(StatusCodes.Status200OK,
                     new Response { Status = "Success", Message = "Email Verify Successfully" });

@@ -1,6 +1,6 @@
 using IdentityCoreFullCustomized.Api.Models;
 using IdentityCoreFullCustomized.Service.Models;
-using MailKit;
+using IdentityCoreFullCustomized.Service.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -34,7 +34,7 @@ builder.Services.AddAuthentication(opt =>
 var emailConfig = configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>();
 builder.Services.AddSingleton(emailConfig);
 
-builder.Services.AddScoped<IMailService, MailService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 
 builder.Services.AddControllers();
