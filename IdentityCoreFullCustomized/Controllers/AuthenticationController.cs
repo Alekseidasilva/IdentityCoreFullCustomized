@@ -43,12 +43,20 @@ public class AuthenticationController : ControllerBase
     [HttpPost(nameof(Register))]
     public async Task<IActionResult> Register([FromBody] RegisterUser registerUser)
     {
-        var token = await _user.CreateUserWithTokenAsync(registerUser);
-        var confirmLink = Url.Action(nameof(ConfirmEmail), "Authentication", new { token, email = registerUser.Email }, Request.Scheme);
-        var message = new Message(new string[] { registerUser.Email! }, "Confirmation Email Link", confirmLink);
-        //  _emailService.SendEmail(message);
+        var tokenResponse = await _user.CreateUserWithTokenAsync(registerUser);
+        if (tokenResponse.IsSuccess)
+        {
+            await _user.AssignRoleToUserAsync(registerUser.Roles!, tokenResponse.Response!.User);
+            var confirmLink = Url.Action(nameof(ConfirmEmail), "Authentication", new { tokenResponse.Response.Token, email = registerUser.Email }, Request.Scheme);
+            var message = new Message(new string[] { registerUser.Email! }, "Confirmation Email Link", confirmLink);
+            //  _emailService.SendEmail(message);
+            return StatusCode(StatusCodes.Status201Created,
+                new Response { Status = "Success", Message = "Email verifield Successfully" });
+        }
+
+
         return StatusCode(StatusCodes.Status201Created,
-            new Response { Status = "Success", Message = "Email Verified Successfuly" });
+            new Response { Message = tokenResponse.Message, IsSuccess = false });
 
     }
 

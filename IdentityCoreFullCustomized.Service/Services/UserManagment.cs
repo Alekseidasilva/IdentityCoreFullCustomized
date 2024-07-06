@@ -1,5 +1,6 @@
 ﻿using IdentityCoreFullCustomized.Service.Models;
 using IdentityCoreFullCustomized.Service.Models.Authentication.SignUp;
+using IdentityCoreFullCustomized.Service.Models.Authentication.User;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 
@@ -25,12 +26,12 @@ public class UserManagment : IUserManagment
         _signInManager = signInManager;
     }
 
-    public async Task<ApiResponse<string>> CreateUserWithTokenAsync(RegisterUser registerUser)
+    public async Task<ApiResponse<UserCreateResponse>> CreateUserWithTokenAsync(RegisterUser registerUser)
     {
         //Check User Exists
         var userExistes = await _userManager.FindByEmailAsync(registerUser.Email);
         if (userExistes != null)
-            return new ApiResponse<string> { IsSuccess = false, StatusCode = 403, Message = "User already Exists!" };
+            return new ApiResponse<UserCreateResponse> { IsSuccess = false, StatusCode = 403, Message = "User already Exists!" };
 
         //Add the User in the Database
         IdentityUser user = new()
@@ -40,20 +41,35 @@ public class UserManagment : IUserManagment
             UserName = registerUser.UserName,
             TwoFactorEnabled = true
         };
-        if (await _roleManager.RoleExistsAsync(registerUser.Role))
+        var result = await _userManager.CreateAsync(user, registerUser.Password);
+        if (result.Succeeded)
         {
-            var result = await _userManager.CreateAsync(user, registerUser.Password);
-            if (!result.Succeeded)
-                return new ApiResponse<string> { IsSuccess = false, StatusCode = 500, Message = "User Failed to Create!" };
-            //Add Role to the User
-            await _userManager.AddToRoleAsync(user, registerUser.Role);
-            //Add Tojen to Verify the Email
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            return new ApiResponse<string> { IsSuccess = true, StatusCode = 201, Message = $"User Created Successfully!", Response = token };
+            return new ApiResponse<UserCreateResponse> { Response = new UserCreateResponse() { User = user, Token = token }, IsSuccess = true, StatusCode = 201, Message = "User Created!" };
+
         }
         else
-            return new ApiResponse<string> { IsSuccess = false, StatusCode = 500, Message = "Provided role  does not exists in the database!" };
+        {
+            return new ApiResponse<UserCreateResponse> { IsSuccess = false, StatusCode = 500, Message = "User Failed to Create!" };
+        }
 
+    }
 
+    public async Task<ApiResponse<List<string>>> AssignRoleToUserAsync(List<string> roles, IdentityUser user)
+    {
+        var assignedRole = new List<string>();
+        foreach (var role in roles)
+        {
+            if (await _roleManager.RoleExistsAsync(role))
+            {
+                if (!await _userManager.IsInRoleAsync(user, role))
+                {
+                    await _userManager.AddToRoleAsync(user, role);
+                    assignedRole.Add(role);
+                }
+
+            }
+        }
+        return new ApiResponse<List<string>> { IsSuccess = true, StatusCode = 200, Message = "Roles has been asssigned", Response = assignedRole };
     }
 }
