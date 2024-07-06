@@ -68,7 +68,7 @@ public class AuthenticationController : ControllerBase
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var confirmLink = Url.Action(nameof(ConfirmEmail), "Authentication", new { token, email = user.Email });
             var message = new Message(new string[] { user.Email! }, "Confirmation Email Link", confirmLink);
-            _emailService.SendEmail(message);
+            //  _emailService.SendEmail(message);
 
 
             return StatusCode(StatusCodes.Status200OK,
@@ -116,10 +116,18 @@ public class AuthenticationController : ControllerBase
             await _signInManager.SignOutAsync();
             await _signInManager.PasswordSignInAsync(user, loginModel.Password, false, true);
             var token = await _userManager.GenerateTwoFactorTokenAsync(user, "Email");
-            Console.WriteLine($"OTP Code: {token}");
             var message = new Message(new string[] { user.Email! }, "OTP Confirmation", token);
 
-            _emailService.SendEmail(message);
+            //Todo: Send Email
+            //Console.WriteLine($"OTP Code: {token}");
+            //  _emailService.SendEmail(message);
+
+
+
+
+
+
+
 
             return StatusCode(StatusCodes.Status200OK, new Response { Status = "Success", Message = $"We have sent an OTP to your Email {user.Email}" });
         }
@@ -151,7 +159,6 @@ public class AuthenticationController : ControllerBase
         return Unauthorized();
 
     }
-
     private JwtSecurityToken GetToken(List<Claim> authClaims)
     {
         var authSignKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"]));
@@ -164,31 +171,29 @@ public class AuthenticationController : ControllerBase
         return token;
     }
     #endregion
-
     #region OTP
-
     [HttpPost]
     [Route("login-2FA")]
     public async Task<IActionResult> LoginWithOTP(string code, string userName)
     {
         var user = await _userManager.FindByNameAsync(userName);
+        //Todo: Terminar Authentication with two factor
         var signIn = await _signInManager.TwoFactorSignInAsync("Email", code, false, false);
         if (signIn.Succeeded)
         {
-
             if (user != null)
             {
                 //ClaimList Creation
                 var authClaims = new List<Claim>
                 {
-                    new Claim(ClaimTypes.Name, user.UserName),
+                    new (ClaimTypes.Name, user.UserName),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 };
                 var userRoles = await _userManager.GetRolesAsync(user);
+
                 //We add Roles to the List
                 foreach (var role in userRoles)
                     authClaims.Add(new Claim(ClaimTypes.Role, role));
-
 
                 //Generate the Token with the claims
                 var jwtToken = GetToken(authClaims);
@@ -202,7 +207,6 @@ public class AuthenticationController : ControllerBase
             }
         }
         return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = "Invalid Code" });
-
     }
 
 
