@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace IdentityCoreFullCustomized.Api.Models.Authentication.SignUp;
+namespace IdentityCoreFullCustomized.Service.Models.Authentication.SignUp;
 
 public class RegisterUser
 {
@@ -10,4 +10,5 @@ public class RegisterUser
     public string? Email { get; set; }
     [Required(ErrorMessage = "Password is Required")]
     public string? Password { get; set; }
+    public string? Role { get; set; }
 }

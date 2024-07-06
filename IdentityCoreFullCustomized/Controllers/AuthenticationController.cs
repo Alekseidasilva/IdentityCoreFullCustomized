@@ -1,7 +1,7 @@
 ﻿using IdentityCoreFullCustomized.Api.Models;
-using IdentityCoreFullCustomized.Api.Models.Authentication.Login;
-using IdentityCoreFullCustomized.Api.Models.Authentication.SignUp;
 using IdentityCoreFullCustomized.Service.Models;
+using IdentityCoreFullCustomized.Service.Models.Authentication.Login;
+using IdentityCoreFullCustomized.Service.Models.Authentication.SignUp;
 using IdentityCoreFullCustomized.Service.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -19,68 +19,37 @@ public class AuthenticationController : ControllerBase
 {
     #region Variables
     private readonly UserManager<IdentityUser> _userManager;
-    private readonly RoleManager<IdentityRole> _roleManager;
-    private readonly IConfiguration _configuration;
-    private readonly IEmailService _emailService;
     private readonly SignInManager<IdentityUser> _signInManager;
+    private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly IEmailService _emailService;
+    private readonly IUserManagment _user;
+    private readonly IConfiguration _configuration;
+
 
     #endregion
     #region Builders
-    public AuthenticationController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, IEmailService emailService, SignInManager<IdentityUser> signInManager)
+    public AuthenticationController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, IEmailService emailService, SignInManager<IdentityUser> signInManager, IUserManagment userManagment)
     {
         _userManager = userManager;
         _roleManager = roleManager;
         _configuration = configuration;
         _emailService = emailService;
         _signInManager = signInManager;
+        _user = userManagment;
     }
     #endregion
     #region Methods
     #region Register
     [HttpPost(nameof(Register))]
-    public async Task<IActionResult> Register([FromBody] RegisterUser registerUser, string role)
+    public async Task<IActionResult> Register([FromBody] RegisterUser registerUser)
     {
-        //Check User Exists
-        var userExistes = await _userManager.FindByEmailAsync(registerUser.Email);
-        if (userExistes != null)
-            return StatusCode(StatusCodes.Status403Forbidden,
-                new Response { Status = "Error", Message = "User already Exists!" });
+        var token = await _user.CreateUserWithTokenAsync(registerUser);
+        var confirmLink = Url.Action(nameof(ConfirmEmail), "Authentication", new { token, email = registerUser.Email }, Request.Scheme);
+        var message = new Message(new string[] { registerUser.Email! }, "Confirmation Email Link", confirmLink);
+        //  _emailService.SendEmail(message);
+        return StatusCode(StatusCodes.Status201Created,
+            new Response { Status = "Success", Message = "Email Verified Successfuly" });
 
-        //Add the User in the Database
-        IdentityUser user = new()
-        {
-            Email = registerUser.Email,
-            SecurityStamp = Guid.NewGuid().ToString(),
-            UserName = registerUser.UserName,
-            TwoFactorEnabled = true
-        };
-        if (await _roleManager.RoleExistsAsync(role))
-        {
-            var result = await _userManager.CreateAsync(user, registerUser.Password);
-            if (!result.Succeeded)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new Response { Status = "Error", Message = "User Failed to Create!" });
-            }
-            //Add Role to the User
-            await _userManager.AddToRoleAsync(user, role);
-
-
-            //Add Tojen to Verify the Email
-            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var confirmLink = Url.Action(nameof(ConfirmEmail), "Authentication", new { token, email = user.Email });
-            var message = new Message(new string[] { user.Email! }, "Confirmation Email Link", confirmLink);
-            //  _emailService.SendEmail(message);
-
-
-            return StatusCode(StatusCodes.Status200OK,
-                new Response { Status = "Success", Message = $"User Created & Email Confirmation was sent to {user.Email} Successfully!" });
-        }
-        else
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError,
-                new Response { Status = "Error", Message = "This Role  does not exists!" });
-        }
     }
 
 

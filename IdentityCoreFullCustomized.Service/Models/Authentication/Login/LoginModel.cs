@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace IdentityCoreFullCustomized.Api.Models.Authentication.Login;
+namespace IdentityCoreFullCustomized.Service.Models.Authentication.Login;
 
 public class LoginModel
 {
