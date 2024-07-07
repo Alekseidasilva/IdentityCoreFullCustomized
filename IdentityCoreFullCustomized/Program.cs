@@ -1,4 +1,4 @@
-using IdentityCoreFullCustomized.Api.Models;
+using IdentityCoreFullCustomized.Data.Models;
 using IdentityCoreFullCustomized.Service.Models;
 using IdentityCoreFullCustomized.Service.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

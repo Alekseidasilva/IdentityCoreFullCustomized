@@ -18,6 +18,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\IdentityCoreFullCustomized.Data\IdentityCoreFullCustomized.Data.csproj" />
 	  <ProjectReference Include="..\IdentityCoreFullCustomized.Service\IdentityCoreFullCustomized.Service.csproj" />
 	</ItemGroup>
 

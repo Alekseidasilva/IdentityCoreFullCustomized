@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace IdentityCoreFullCustomized.Migrations
+namespace IdentityCoreFullCustomized.Data.Migrations
 {
     public partial class InitialMigration : Migration
     {
@@ -153,6 +153,21 @@ namespace IdentityCoreFullCustomized.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.InsertData(
+                table: "AspNetRoles",
+                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
+                values: new object[] { "0114e900-7edc-4efe-a09a-1c0123ceb6fc", "2", "User", "User" });
+
+            migrationBuilder.InsertData(
+                table: "AspNetRoles",
+                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
+                values: new object[] { "c0d57bc6-7561-43d3-ab4e-720f437188c5", "3", "RH", "RH" });
+
+            migrationBuilder.InsertData(
+                table: "AspNetRoles",
+                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
+                values: new object[] { "f91fe20d-0ec4-4186-a90d-3f09b8a1c42a", "1", "Admin", "Admin" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
