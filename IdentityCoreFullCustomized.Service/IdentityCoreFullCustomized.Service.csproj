@@ -22,4 +22,8 @@
 		<PackageReference Include="NETCore.MailKit" Version="2.1.0" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\IdentityCoreFullCustomized.Data\IdentityCoreFullCustomized.Data.csproj" />
+	</ItemGroup>
+
 </Project>

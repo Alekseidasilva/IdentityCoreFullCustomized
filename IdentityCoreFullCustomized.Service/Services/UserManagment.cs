@@ -1,4 +1,5 @@
-﻿using IdentityCoreFullCustomized.Service.Models;
+﻿using IdentityCoreFullCustomized.Data.Models;
+using IdentityCoreFullCustomized.Service.Models;
 using IdentityCoreFullCustomized.Service.Models.Authentication.Login;
 using IdentityCoreFullCustomized.Service.Models.Authentication.SignUp;
 using IdentityCoreFullCustomized.Service.Models.Authentication.User;
@@ -10,15 +11,15 @@ namespace IdentityCoreFullCustomized.Service.Services;
 public class UserManagment : IUserManagment
 {
     #region Variables
-    private readonly UserManager<IdentityUser> _userManager;
+    private readonly UserManager<ApplicationUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IConfiguration _configuration;
     private readonly IEmailService _emailService;
-    private readonly SignInManager<IdentityUser> _signInManager;
+    private readonly SignInManager<ApplicationUser> _signInManager;
 
     #endregion
 
-    public UserManagment(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, IEmailService emailService, SignInManager<IdentityUser> signInManager)
+    public UserManagment(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, IEmailService emailService, SignInManager<ApplicationUser> signInManager)
     {
         _userManager = userManager;
         _roleManager = roleManager;
@@ -35,7 +36,7 @@ public class UserManagment : IUserManagment
             return new ApiResponse<UserCreateResponse> { IsSuccess = false, StatusCode = 403, Message = "User already Exists!" };
 
         //Add the User in the Database
-        IdentityUser user = new()
+        ApplicationUser user = new()
         {
             Email = registerUser.Email,
             SecurityStamp = Guid.NewGuid().ToString(),
@@ -56,7 +57,7 @@ public class UserManagment : IUserManagment
 
     }
 
-    public async Task<ApiResponse<List<string>>> AssignRoleToUserAsync(List<string> roles, IdentityUser user)
+    public async Task<ApiResponse<List<string>>> AssignRoleToUserAsync(List<string> roles, ApplicationUser user)
     {
         var assignedRole = new List<string>();
         foreach (var role in roles)

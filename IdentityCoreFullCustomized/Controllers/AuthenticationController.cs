@@ -1,4 +1,5 @@
 ﻿using IdentityCoreFullCustomized.Api.Models;
+using IdentityCoreFullCustomized.Data.Models;
 using IdentityCoreFullCustomized.Service.Models;
 using IdentityCoreFullCustomized.Service.Models.Authentication.Login;
 using IdentityCoreFullCustomized.Service.Models.Authentication.SignUp;
@@ -18,8 +19,8 @@ namespace IdentityCoreFullCustomized.Api.Controllers;
 public class AuthenticationController : ControllerBase
 {
     #region Variables
-    private readonly UserManager<IdentityUser> _userManager;
-    private readonly SignInManager<IdentityUser> _signInManager;
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IEmailService _emailService;
     private readonly IUserManagment _user;
@@ -28,7 +29,7 @@ public class AuthenticationController : ControllerBase
 
     #endregion
     #region Builders
-    public AuthenticationController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, IEmailService emailService, SignInManager<IdentityUser> signInManager, IUserManagment userManagment)
+    public AuthenticationController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, IEmailService emailService, SignInManager<ApplicationUser> signInManager, IUserManagment userManagment)
     {
         _userManager = userManager;
         _roleManager = roleManager;

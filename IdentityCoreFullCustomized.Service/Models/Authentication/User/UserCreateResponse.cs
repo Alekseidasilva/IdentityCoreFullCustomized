@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using IdentityCoreFullCustomized.Data.Models;
 
 namespace IdentityCoreFullCustomized.Service.Models.Authentication.User;
 
 public class UserCreateResponse
 {
     public string Token { get; set; }
-    public IdentityUser User { get; set; }
+    public ApplicationUser User { get; set; }
 }

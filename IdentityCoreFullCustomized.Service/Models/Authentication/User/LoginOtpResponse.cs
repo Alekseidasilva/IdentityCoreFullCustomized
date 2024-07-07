@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using IdentityCoreFullCustomized.Data.Models;
 
 namespace IdentityCoreFullCustomized.Service.Models.Authentication.User;
 
@@ -6,5 +6,5 @@ public class LoginOtpResponse
 {
     public string Token { get; set; } = null!;
     public bool IsTwoFactoryEnabled { get; set; }
-    public IdentityUser User { get; set; } = null!;
+    public ApplicationUser User { get; set; } = null!;
 }
