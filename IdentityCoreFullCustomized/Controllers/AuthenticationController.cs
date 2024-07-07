@@ -134,10 +134,11 @@ public class AuthenticationController : ControllerBase
     private JwtSecurityToken GetToken(List<Claim> authClaims)
     {
         var authSignKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"]));
+        _ = int.TryParse(_configuration["Jwt:TokenValidateInMinutes"], out int tokenValidateInMinutes);
         var token = new JwtSecurityToken(
             issuer: _configuration["Jwt:ValidIssuer"],
             audience: _configuration["Jwt:ValidAudience"],
-            expires: DateTime.Now.AddHours(3),
+            expires: DateTime.Now.AddMinutes(tokenValidateInMinutes),
             claims: authClaims,
             signingCredentials: new SigningCredentials(authSignKey, SecurityAlgorithms.HmacSha256));
         return token;
