@@ -1,4 +1,5 @@
 ﻿using IdentityCoreFullCustomized.Service.Models;
+using IdentityCoreFullCustomized.Service.Models.Authentication.Login;
 using IdentityCoreFullCustomized.Service.Models.Authentication.SignUp;
 using IdentityCoreFullCustomized.Service.Models.Authentication.User;
 using Microsoft.AspNetCore.Identity;
@@ -71,5 +72,57 @@ public class UserManagment : IUserManagment
             }
         }
         return new ApiResponse<List<string>> { IsSuccess = true, StatusCode = 200, Message = "Roles has been asssigned", Response = assignedRole };
+    }
+
+    public async Task<ApiResponse<LoginOtpResponse>> GetOtpByLoginAsync(LoginModel loginModel)
+    {
+        var user = await _userManager.FindByNameAsync(loginModel.UserName);
+        if (user != null)
+        {
+            await _signInManager.SignOutAsync();
+            await _signInManager.PasswordSignInAsync(user, loginModel.Password, false, true);
+            if (user.TwoFactorEnabled)
+            {
+                var token = await _userManager.GenerateTwoFactorTokenAsync(user, "Email");
+                return new ApiResponse<LoginOtpResponse>
+                {
+                    Response = new LoginOtpResponse()
+                    {
+                        User = user,
+                        Token = token,
+                        IsTwoFactoryEnabled = user.TwoFactorEnabled
+                    },
+                    IsSuccess = true,
+                    StatusCode = 200,
+                    Message = $"OTP sent to the email : {user.Email}"
+                };
+            }
+            else
+            {
+                return new ApiResponse<LoginOtpResponse>
+                {
+                    Response = new LoginOtpResponse()
+                    {
+                        User = user,
+                        Token = String.Empty,
+                        IsTwoFactoryEnabled = user.TwoFactorEnabled
+                    },
+                    IsSuccess = true,
+                    StatusCode = 200,
+                    Message = "2TA is not Enabled"
+                };
+            }
+
+        }
+        else
+        {
+            return new ApiResponse<LoginOtpResponse>
+            {
+                IsSuccess = false,
+                StatusCode = 404,
+                Message = "User does not exists"
+            };
+        }
+
     }
 }
